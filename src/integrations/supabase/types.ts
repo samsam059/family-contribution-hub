@@ -14,7 +14,168 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      families: {
+        Row: {
+          card_number: string
+          created_at: string
+          family_head_name: string
+          id: string
+          photo: string | null
+          total_members: number
+        }
+        Insert: {
+          card_number: string
+          created_at?: string
+          family_head_name: string
+          id?: string
+          photo?: string | null
+          total_members?: number
+        }
+        Update: {
+          card_number?: string
+          created_at?: string
+          family_head_name?: string
+          id?: string
+          photo?: string | null
+          total_members?: number
+        }
+        Relationships: []
+      }
+      members: {
+        Row: {
+          created_at: string
+          family_id: string
+          id: string
+          member_name: string
+          status: string
+        }
+        Insert: {
+          created_at?: string
+          family_id: string
+          id?: string
+          member_name: string
+          status?: string
+        }
+        Update: {
+          created_at?: string
+          family_id?: string
+          id?: string
+          member_name?: string
+          status?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "members_family_id_fkey"
+            columns: ["family_id"]
+            isOneToOne: false
+            referencedRelation: "families"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      pending_requests: {
+        Row: {
+          created_at: string
+          family_id: string
+          id: string
+          member_name: string
+          request_type: string
+          status: string
+        }
+        Insert: {
+          created_at?: string
+          family_id: string
+          id?: string
+          member_name: string
+          request_type?: string
+          status?: string
+        }
+        Update: {
+          created_at?: string
+          family_id?: string
+          id?: string
+          member_name?: string
+          request_type?: string
+          status?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "pending_requests_family_id_fkey"
+            columns: ["family_id"]
+            isOneToOne: false
+            referencedRelation: "families"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      subscriptions: {
+        Row: {
+          amount: number
+          created_at: string
+          family_id: string
+          id: string
+          month: number
+          paid_date: string | null
+          paid_status: string
+          year: number
+        }
+        Insert: {
+          amount?: number
+          created_at?: string
+          family_id: string
+          id?: string
+          month: number
+          paid_date?: string | null
+          paid_status?: string
+          year: number
+        }
+        Update: {
+          amount?: number
+          created_at?: string
+          family_id?: string
+          id?: string
+          month?: number
+          paid_date?: string | null
+          paid_status?: string
+          year?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "subscriptions_family_id_fkey"
+            columns: ["family_id"]
+            isOneToOne: false
+            referencedRelation: "families"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      users: {
+        Row: {
+          created_at: string
+          id: string
+          name: string
+          password: string
+          role: Database["public"]["Enums"]["app_role"]
+          username: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          name: string
+          password: string
+          role?: Database["public"]["Enums"]["app_role"]
+          username: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          name?: string
+          password?: string
+          role?: Database["public"]["Enums"]["app_role"]
+          username?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
@@ -23,7 +184,7 @@ export type Database = {
       [_ in never]: never
     }
     Enums: {
-      [_ in never]: never
+      app_role: "admin" | "entry"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -150,6 +311,8 @@ export type CompositeTypes<
 
 export const Constants = {
   public: {
-    Enums: {},
+    Enums: {
+      app_role: ["admin", "entry"],
+    },
   },
 } as const
