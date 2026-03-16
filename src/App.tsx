@@ -4,9 +4,17 @@ import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { AuthProvider } from "@/contexts/AuthContext";
 import ProtectedRoute from "@/components/ProtectedRoute";
+import AdminLayout from "@/components/AdminLayout";
 import Index from "./pages/Index";
 import Login from "./pages/Login";
-import AdminDashboard from "./pages/AdminDashboard";
+import AdminOverview from "./pages/admin/AdminOverview";
+import AdminFamilies from "./pages/admin/AdminFamilies";
+import AdminMembers from "./pages/admin/AdminMembers";
+import AdminPayments from "./pages/admin/AdminPayments";
+import AdminReports from "./pages/admin/AdminReports";
+import AdminRequests from "./pages/admin/AdminRequests";
+import AdminUsers from "./pages/admin/AdminUsers";
+import AdminSettings from "./pages/admin/AdminSettings";
 import EntryDashboard from "./pages/EntryDashboard";
 import NotFound from "./pages/NotFound";
 
@@ -25,10 +33,19 @@ const App = () => (
               path="/dashboard/admin"
               element={
                 <ProtectedRoute allowedRole="admin">
-                  <AdminDashboard />
+                  <AdminLayout />
                 </ProtectedRoute>
               }
-            />
+            >
+              <Route index element={<AdminOverview />} />
+              <Route path="families" element={<AdminFamilies />} />
+              <Route path="members" element={<AdminMembers />} />
+              <Route path="payments" element={<AdminPayments />} />
+              <Route path="reports" element={<AdminReports />} />
+              <Route path="requests" element={<AdminRequests />} />
+              <Route path="users" element={<AdminUsers />} />
+              <Route path="settings" element={<AdminSettings />} />
+            </Route>
             <Route
               path="/dashboard/entry"
               element={

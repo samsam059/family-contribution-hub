@@ -16,14 +16,14 @@ function RoleCard({
   return (
     <motion.button
       onClick={onClick}
-      whileHover={{ y: -8, boxShadow: "0 20px 25px -5px rgb(0 0 0 / 0.1)" }}
+      whileHover={{ y: -8, boxShadow: "0 20px 40px -10px rgba(128, 80, 246, 0.3)" }}
       whileTap={{ scale: 0.98 }}
-      className="group relative flex flex-col items-center text-center p-12 border border-border rounded-2xl bg-card transition-colors hover:border-primary/20 cursor-pointer w-full"
+      className="group relative flex flex-col items-center text-center p-12 border border-border rounded-2xl bg-card transition-colors hover:border-primary/40 cursor-pointer w-full"
     >
-      <div className="mb-6 p-4 rounded-full bg-muted text-primary group-hover:bg-primary group-hover:text-primary-foreground transition-colors">
+      <div className="mb-6 p-4 rounded-full bg-secondary text-primary group-hover:bg-primary group-hover:text-primary-foreground transition-colors">
         {icon}
       </div>
-      <h2 className="text-3xl font-semibold mb-3 tracking-tight text-foreground">{title}</h2>
+      <h2 className="text-3xl font-semibold mb-3 tracking-tight">{title}</h2>
       <p className="text-muted-foreground leading-relaxed max-w-[240px]">{description}</p>
     </motion.button>
   );
@@ -40,7 +40,9 @@ export default function Index() {
         transition={{ duration: 0.5 }}
         className="text-center mb-12"
       >
-        <h1 className="text-5xl font-semibold tracking-tight text-foreground mb-3">Family Ledger</h1>
+        <h1 className="text-5xl font-bold tracking-tight mb-3">
+          Family <span className="text-primary">Ledger</span>
+        </h1>
         <p className="text-lg text-muted-foreground">Manage family contributions with clarity</p>
       </motion.div>
 
