@@ -20,9 +20,9 @@ export default function Login() {
     return null;
   }
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    const success = login(username, password, role);
+    const success = await login(username, password, role);
     if (success) {
       navigate(`/dashboard/${role}`);
     } else {
