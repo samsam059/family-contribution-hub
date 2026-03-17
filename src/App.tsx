@@ -53,10 +53,14 @@ const App = () => (
               path="/dashboard/entry"
               element={
                 <ProtectedRoute allowedRole="entry">
-                  <EntryDashboard />
+                  <EntryLayout />
                 </ProtectedRoute>
               }
-            />
+            >
+              <Route index element={<EntrySearchFamily />} />
+              <Route path="payments" element={<EntryPayments />} />
+              <Route path="requests" element={<EntryMemberRequest />} />
+            </Route>
             <Route path="*" element={<NotFound />} />
           </Routes>
         </BrowserRouter>
