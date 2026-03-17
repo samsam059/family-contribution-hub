@@ -1,0 +1,142 @@
+import { useEffect, useState } from "react";
+import { supabase } from "@/integrations/supabase/client";
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { Badge } from "@/components/ui/badge";
+import { useToast } from "@/hooks/use-toast";
+import { Search } from "lucide-react";
+
+interface Family {
+  id: string;
+  card_number: string;
+  family_head_name: string;
+  total_members: number;
+}
+
+interface Subscription {
+  id: string;
+  month: number;
+  year: number;
+  amount: number;
+  paid_status: string;
+  paid_date: string | null;
+}
+
+const MONTH_NAMES = ["", "Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+
+export default function EntryPayments() {
+  const [query, setQuery] = useState("");
+  const [family, setFamily] = useState<Family | null>(null);
+  const [subscriptions, setSubscriptions] = useState<Subscription[]>([]);
+  const [loading, setLoading] = useState(false);
+  const { toast } = useToast();
+
+  const handleSearch = async () => {
+    if (!query.trim()) return;
+    setLoading(true);
+    const { data } = await supabase
+      .from("families")
+      .select("*")
+      .or(`card_number.ilike.%${query}%,family_head_name.ilike.%${query}%`)
+      .limit(1)
+      .maybeSingle();
+    setFamily(data);
+    if (data) {
+      const { data: subs } = await supabase
+        .from("subscriptions")
+        .select("*")
+        .eq("family_id", data.id)
+        .order("year", { ascending: false })
+        .order("month", { ascending: false });
+      setSubscriptions(subs ?? []);
+    } else {
+      setSubscriptions([]);
+    }
+    setLoading(false);
+  };
+
+  const markPaid = async (sub: Subscription) => {
+    const { error } = await supabase
+      .from("subscriptions")
+      .update({ paid_status: "paid", paid_date: new Date().toISOString().split("T")[0] })
+      .eq("id", sub.id);
+    if (error) {
+      toast({ title: "Error", description: error.message, variant: "destructive" });
+    } else {
+      toast({ title: "Marked as paid" });
+      setSubscriptions((prev) =>
+        prev.map((s) => (s.id === sub.id ? { ...s, paid_status: "paid", paid_date: new Date().toISOString().split("T")[0] } : s))
+      );
+    }
+  };
+
+  return (
+    <div className="space-y-6">
+      <div>
+        <h2 className="text-2xl font-semibold tracking-tight text-foreground">Payment Entry</h2>
+        <p className="text-muted-foreground text-sm">Search a family and record payments.</p>
+      </div>
+
+      <div className="flex gap-3">
+        <Input
+          placeholder="Card number or name…"
+          value={query}
+          onChange={(e) => setQuery(e.target.value)}
+          onKeyDown={(e) => e.key === "Enter" && handleSearch()}
+          className="max-w-sm"
+        />
+        <Button onClick={handleSearch} disabled={loading}>
+          <Search className="mr-2 h-4 w-4" /> Search
+        </Button>
+      </div>
+
+      {family && (
+        <Card>
+          <CardHeader>
+            <CardTitle>{family.family_head_name} <span className="text-sm font-normal text-muted-foreground">({family.card_number})</span></CardTitle>
+          </CardHeader>
+          <CardContent>
+            {subscriptions.length === 0 ? (
+              <p className="text-sm text-muted-foreground">No subscriptions found.</p>
+            ) : (
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>Period</TableHead>
+                    <TableHead>Amount</TableHead>
+                    <TableHead>Status</TableHead>
+                    <TableHead>Action</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {subscriptions.map((sub) => (
+                    <TableRow key={sub.id}>
+                      <TableCell>{MONTH_NAMES[sub.month]} {sub.year}</TableCell>
+                      <TableCell>${Number(sub.amount).toFixed(2)}</TableCell>
+                      <TableCell>
+                        <Badge variant={sub.paid_status === "paid" ? "default" : "destructive"}>
+                          {sub.paid_status}
+                        </Badge>
+                      </TableCell>
+                      <TableCell>
+                        {sub.paid_status === "unpaid" && (
+                          <Button size="sm" onClick={() => markPaid(sub)}>Mark Paid</Button>
+                        )}
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            )}
+          </CardContent>
+        </Card>
+      )}
+
+      {!family && query && !loading && (
+        <p className="text-sm text-muted-foreground">No family found.</p>
+      )}
+    </div>
+  );
+}
