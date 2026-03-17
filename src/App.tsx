@@ -15,7 +15,10 @@ import AdminReports from "./pages/admin/AdminReports";
 import AdminRequests from "./pages/admin/AdminRequests";
 import AdminUsers from "./pages/admin/AdminUsers";
 import AdminSettings from "./pages/admin/AdminSettings";
-import EntryDashboard from "./pages/EntryDashboard";
+import EntryLayout from "./components/EntryLayout";
+import EntrySearchFamily from "./pages/entry/EntrySearchFamily";
+import EntryPayments from "./pages/entry/EntryPayments";
+import EntryMemberRequest from "./pages/entry/EntryMemberRequest";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
