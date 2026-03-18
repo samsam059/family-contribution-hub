@@ -37,10 +37,10 @@ export default function Login() {
   return (
     <div className="min-h-svh flex flex-col items-center justify-center bg-background p-6">
       <motion.div
-        initial={{ opacity: 0, y: 20 }}
+        initial={{ opacity: 0, y: 16 }}
         animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.4 }}
-        className="w-full max-w-[400px] space-y-8"
+        transition={{ duration: 0.35 }}
+        className="w-full max-w-[380px] space-y-6"
       >
         <button
           onClick={() => navigate("/")}
@@ -49,46 +49,44 @@ export default function Login() {
           <ArrowLeft size={16} /> Back
         </button>
 
-        <header className="text-center space-y-2">
-          <h1 className="text-4xl font-semibold tracking-tight text-foreground">Welcome back</h1>
-          <p className="text-muted-foreground">
-            Logging in as <span className="capitalize font-medium text-foreground">{role}</span>
+        <div className="bg-card border border-border rounded-xl p-8 shadow-sm space-y-6">
+          <header className="text-center space-y-1">
+            <h1 className="text-2xl font-semibold tracking-tight text-foreground">Sign in</h1>
+            <p className="text-sm text-muted-foreground">
+              Logging in as <span className="capitalize font-medium text-primary">{role}</span>
+            </p>
+          </header>
+
+          <form onSubmit={handleSubmit} className="space-y-4">
+            <div className="space-y-1.5">
+              <label className="text-xs font-medium text-muted-foreground ml-0.5">Username</label>
+              <Input
+                type="text"
+                value={username}
+                onChange={(e) => setUsername(e.target.value)}
+                placeholder={role}
+                className="h-10"
+              />
+            </div>
+            <div className="space-y-1.5">
+              <label className="text-xs font-medium text-muted-foreground ml-0.5">Password</label>
+              <Input
+                type="password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                placeholder="••••••••"
+                className="h-10"
+              />
+            </div>
+            <Button type="submit" className="w-full h-10">
+              Sign in
+            </Button>
+          </form>
+
+          <p className="text-xs text-center text-muted-foreground">
+            Demo: <span className="font-medium text-foreground">{role}</span> / <span className="font-medium text-foreground">{role}</span>
           </p>
-        </header>
-
-        <form onSubmit={handleSubmit} className="space-y-4">
-          <div className="space-y-1.5">
-            <label className="text-xs font-semibold uppercase tracking-wider text-muted-foreground ml-1">
-              Username
-            </label>
-            <Input
-              type="text"
-              value={username}
-              onChange={(e) => setUsername(e.target.value)}
-              placeholder={role}
-              className="h-12"
-            />
-          </div>
-          <div className="space-y-1.5">
-            <label className="text-xs font-semibold uppercase tracking-wider text-muted-foreground ml-1">
-              Password
-            </label>
-            <Input
-              type="password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              placeholder="••••••••"
-              className="h-12"
-            />
-          </div>
-          <Button type="submit" className="w-full h-12 text-base">
-            Sign in to Dashboard
-          </Button>
-        </form>
-
-        <p className="text-xs text-center text-muted-foreground">
-          Demo: use <span className="font-medium text-foreground">{role}</span> / <span className="font-medium text-foreground">{role}</span>
-        </p>
+        </div>
       </motion.div>
     </div>
   );
