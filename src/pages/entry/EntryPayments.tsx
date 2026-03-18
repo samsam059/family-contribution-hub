@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -6,7 +6,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import { useToast } from "@/hooks/use-toast";
-import { Search } from "lucide-react";
+import { Search, DollarSign } from "lucide-react";
 
 interface Family {
   id: string;
@@ -27,19 +27,24 @@ interface Subscription {
 const MONTH_NAMES = ["", "Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
 
 export default function EntryPayments() {
-  const [query, setQuery] = useState("");
+  const [cardNumber, setCardNumber] = useState("");
   const [family, setFamily] = useState<Family | null>(null);
   const [subscriptions, setSubscriptions] = useState<Subscription[]>([]);
   const [loading, setLoading] = useState(false);
+  const [searched, setSearched] = useState(false);
   const { toast } = useToast();
 
+  const unpaidSubs = subscriptions.filter((s) => s.paid_status === "unpaid");
+  const totalPending = unpaidSubs.reduce((sum, s) => sum + Number(s.amount), 0);
+
   const handleSearch = async () => {
-    if (!query.trim()) return;
+    if (!cardNumber.trim()) return;
     setLoading(true);
+    setSearched(true);
     const { data } = await supabase
       .from("families")
       .select("*")
-      .or(`card_number.ilike.%${query}%,family_head_name.ilike.%${query}%`)
+      .ilike("card_number", `%${cardNumber.trim()}%`)
       .limit(1)
       .maybeSingle();
     setFamily(data);
@@ -76,16 +81,16 @@ export default function EntryPayments() {
     <div className="space-y-6">
       <div>
         <h2 className="text-2xl font-semibold tracking-tight text-foreground">Payment Entry</h2>
-        <p className="text-muted-foreground text-sm">Search a family and record payments.</p>
+        <p className="text-muted-foreground text-sm">Enter card number, view pending amount, and mark payments.</p>
       </div>
 
       <div className="flex gap-3">
         <Input
-          placeholder="Card number or name…"
-          value={query}
-          onChange={(e) => setQuery(e.target.value)}
+          placeholder="Card Number (e.g. BE-001)"
+          value={cardNumber}
+          onChange={(e) => setCardNumber(e.target.value)}
           onKeyDown={(e) => e.key === "Enter" && handleSearch()}
-          className="max-w-sm"
+          className="max-w-xs"
         />
         <Button onClick={handleSearch} disabled={loading}>
           <Search className="mr-2 h-4 w-4" /> Search
@@ -95,7 +100,15 @@ export default function EntryPayments() {
       {family && (
         <Card>
           <CardHeader>
-            <CardTitle>{family.family_head_name} <span className="text-sm font-normal text-muted-foreground">({family.card_number})</span></CardTitle>
+            <CardTitle className="flex items-center justify-between">
+              <span>{family.family_head_name} <span className="text-sm font-normal text-muted-foreground">({family.card_number})</span></span>
+              {unpaidSubs.length > 0 && (
+                <Badge variant="destructive" className="text-sm">
+                  <DollarSign className="h-3 w-3 mr-1" />
+                  Pending: ${totalPending.toFixed(2)} ({unpaidSubs.length} months)
+                </Badge>
+              )}
+            </CardTitle>
           </CardHeader>
           <CardContent>
             {subscriptions.length === 0 ? (
@@ -134,8 +147,8 @@ export default function EntryPayments() {
         </Card>
       )}
 
-      {!family && query && !loading && (
-        <p className="text-sm text-muted-foreground">No family found.</p>
+      {!family && searched && !loading && (
+        <p className="text-sm text-muted-foreground">No family found for that card number.</p>
       )}
     </div>
   );
