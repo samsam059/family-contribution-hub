@@ -14,20 +14,22 @@ interface Family {
 }
 
 export default function EntryMemberRequest() {
-  const [query, setQuery] = useState("");
+  const [cardNumber, setCardNumber] = useState("");
   const [family, setFamily] = useState<Family | null>(null);
   const [memberName, setMemberName] = useState("");
   const [loading, setLoading] = useState(false);
   const [submitting, setSubmitting] = useState(false);
+  const [searched, setSearched] = useState(false);
   const { toast } = useToast();
 
   const handleSearch = async () => {
-    if (!query.trim()) return;
+    if (!cardNumber.trim()) return;
     setLoading(true);
+    setSearched(true);
     const { data } = await supabase
       .from("families")
       .select("id, card_number, family_head_name")
-      .or(`card_number.ilike.%${query}%,family_head_name.ilike.%${query}%`)
+      .ilike("card_number", `%${cardNumber.trim()}%`)
       .limit(1)
       .maybeSingle();
     setFamily(data);
@@ -55,17 +57,17 @@ export default function EntryMemberRequest() {
   return (
     <div className="space-y-6">
       <div>
-        <h2 className="text-2xl font-semibold tracking-tight text-foreground">Member Request</h2>
-        <p className="text-muted-foreground text-sm">Request to add a new member to a family. Admin approval required.</p>
+        <h2 className="text-2xl font-semibold tracking-tight text-foreground">Request Add Member</h2>
+        <p className="text-muted-foreground text-sm">Enter a card number and member name. The request will be sent to admin for approval.</p>
       </div>
 
       <div className="flex gap-3">
         <Input
-          placeholder="Search family by card number or name…"
-          value={query}
-          onChange={(e) => setQuery(e.target.value)}
+          placeholder="Card Number (e.g. BE-001)"
+          value={cardNumber}
+          onChange={(e) => setCardNumber(e.target.value)}
           onKeyDown={(e) => e.key === "Enter" && handleSearch()}
-          className="max-w-sm"
+          className="max-w-xs"
         />
         <Button onClick={handleSearch} disabled={loading}>
           <Search className="mr-2 h-4 w-4" /> Search
@@ -73,29 +75,28 @@ export default function EntryMemberRequest() {
       </div>
 
       {family && (
-        <Card>
+        <Card className="max-w-md">
           <CardHeader>
             <CardTitle>{family.family_head_name} <span className="text-sm font-normal text-muted-foreground">({family.card_number})</span></CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
             <div className="space-y-2">
-              <Label>New Member Name</Label>
+              <Label>Member Name</Label>
               <Input
-                placeholder="Enter member name"
+                placeholder="Enter new member name"
                 value={memberName}
                 onChange={(e) => setMemberName(e.target.value)}
-                className="max-w-sm"
               />
             </div>
-            <Button onClick={submitRequest} disabled={submitting || !memberName.trim()}>
-              <UserPlus className="mr-2 h-4 w-4" /> Submit Request
+            <Button onClick={submitRequest} disabled={submitting || !memberName.trim()} className="w-full">
+              <UserPlus className="mr-2 h-4 w-4" /> Request Add Member
             </Button>
           </CardContent>
         </Card>
       )}
 
-      {!family && query && !loading && (
-        <p className="text-sm text-muted-foreground">No family found.</p>
+      {!family && searched && !loading && (
+        <p className="text-sm text-muted-foreground">No family found for that card number.</p>
       )}
     </div>
   );
