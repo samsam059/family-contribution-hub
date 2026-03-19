@@ -1,3 +1,4 @@
+import { useEffect, useState } from "react";
 import {
   LayoutDashboard,
   Users,
@@ -8,10 +9,12 @@ import {
   UserCog,
   Settings,
   LogOut,
+  Bell,
 } from "lucide-react";
 import { NavLink } from "@/components/NavLink";
 import { useLocation, useNavigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
+import { supabase } from "@/integrations/supabase/client";
 import {
   Sidebar,
   SidebarContent,
@@ -41,6 +44,20 @@ export function AdminSidebar() {
   const location = useLocation();
   const navigate = useNavigate();
   const { logout } = useAuth();
+  const [pendingCount, setPendingCount] = useState(0);
+
+  useEffect(() => {
+    const fetchPending = async () => {
+      const { count } = await supabase
+        .from("pending_requests")
+        .select("id", { count: "exact", head: true })
+        .eq("status", "pending");
+      setPendingCount(count ?? 0);
+    };
+    fetchPending();
+    const interval = setInterval(fetchPending, 30000);
+    return () => clearInterval(interval);
+  }, []);
 
   const handleLogout = () => {
     logout();
@@ -68,6 +85,8 @@ export function AdminSidebar() {
                     ? location.pathname === "/dashboard/admin"
                     : location.pathname.startsWith(item.url);
 
+                const showBadge = item.title === "Pending Requests" && pendingCount > 0;
+
                 return (
                   <SidebarMenuItem key={item.title}>
                     <SidebarMenuButton asChild>
@@ -78,7 +97,20 @@ export function AdminSidebar() {
                         activeClassName="bg-sidebar-accent text-sidebar-accent-foreground font-medium"
                       >
                         <item.icon className="mr-2 h-4 w-4" />
-                        {!collapsed && <span>{item.title}</span>}
+                        {!collapsed && (
+                          <span className="flex-1 flex items-center justify-between">
+                            {item.title}
+                            {showBadge && (
+                              <span className="ml-auto flex items-center gap-1 rounded-full bg-destructive px-2 py-0.5 text-[10px] font-bold text-destructive-foreground">
+                                <Bell className="h-3 w-3" />
+                                {pendingCount}
+                              </span>
+                            )}
+                          </span>
+                        )}
+                        {collapsed && showBadge && (
+                          <span className="absolute right-1 top-1 h-2 w-2 rounded-full bg-destructive" />
+                        )}
                       </NavLink>
                     </SidebarMenuButton>
                   </SidebarMenuItem>
