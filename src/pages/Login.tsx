@@ -6,6 +6,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useToast } from "@/hooks/use-toast";
+import { ThemeToggle } from "@/components/ThemeToggle";
 
 export default function Login() {
   const { role } = useParams<{ role: "admin" | "entry" }>();
@@ -35,7 +36,10 @@ export default function Login() {
   };
 
   return (
-    <div className="min-h-svh flex flex-col items-center justify-center bg-background p-6">
+    <div className="min-h-svh flex flex-col items-center justify-center bg-background p-6 relative">
+      <div className="absolute top-4 right-4">
+        <ThemeToggle />
+      </div>
       <motion.div
         initial={{ opacity: 0, y: 16 }}
         animate={{ opacity: 1, y: 0 }}
@@ -64,7 +68,7 @@ export default function Login() {
                 type="text"
                 value={username}
                 onChange={(e) => setUsername(e.target.value)}
-                placeholder={role}
+                placeholder="Enter username"
                 className="h-10"
               />
             </div>
@@ -82,10 +86,6 @@ export default function Login() {
               Sign in
             </Button>
           </form>
-
-          <p className="text-xs text-center text-muted-foreground">
-            Demo: <span className="font-medium text-foreground">{role}</span> / <span className="font-medium text-foreground">{role}</span>
-          </p>
         </div>
       </motion.div>
     </div>
