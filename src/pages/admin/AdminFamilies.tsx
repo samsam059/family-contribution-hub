@@ -7,6 +7,8 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { useToast } from "@/hooks/use-toast";
 import { Plus, Trash2, Upload, Search } from "lucide-react";
+import { usePagination } from "@/hooks/use-pagination";
+import { TablePagination } from "@/components/TablePagination";
 
 interface Family {
   id: string;
@@ -100,6 +102,8 @@ export default function AdminFamilies() {
       f.family_head_name.toLowerCase().includes(search.toLowerCase())
   );
 
+  const pagination = usePagination(filtered, 10);
+
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
@@ -146,7 +150,7 @@ export default function AdminFamilies() {
 
       <div className="flex items-center gap-2">
         <Search size={16} className="text-muted-foreground" />
-        <Input placeholder="Search by card number or name..." value={search} onChange={(e) => setSearch(e.target.value)} className="max-w-sm" />
+        <Input placeholder="Search by card number or name..." value={search} onChange={(e) => { setSearch(e.target.value); pagination.setPage(1); }} className="max-w-sm" />
       </div>
 
       <div className="border border-border rounded-xl bg-card overflow-hidden">
@@ -155,40 +159,43 @@ export default function AdminFamilies() {
         ) : filtered.length === 0 ? (
           <p className="text-muted-foreground text-sm p-6">No families found.</p>
         ) : (
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>Photo</TableHead>
-                <TableHead>Card No.</TableHead>
-                <TableHead>Family Head</TableHead>
-                <TableHead>Members</TableHead>
-                <TableHead>Created</TableHead>
-                <TableHead className="text-right">Actions</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {filtered.map((f) => (
-                <TableRow key={f.id}>
-                  <TableCell>
-                    {f.photo ? (
-                      <img src={f.photo} alt="" className="w-10 h-10 rounded-full object-cover" />
-                    ) : (
-                      <div className="w-10 h-10 rounded-full bg-secondary flex items-center justify-center text-xs text-muted-foreground">N/A</div>
-                    )}
-                  </TableCell>
-                  <TableCell className="font-mono text-sm">{f.card_number}</TableCell>
-                  <TableCell>{f.family_head_name}</TableCell>
-                  <TableCell>{f.total_members}</TableCell>
-                  <TableCell className="text-sm text-muted-foreground">{new Date(f.created_at).toLocaleDateString()}</TableCell>
-                  <TableCell className="text-right">
-                    <Button variant="ghost" size="icon" onClick={() => handleDelete(f.id, f.card_number)}>
-                      <Trash2 size={16} className="text-destructive" />
-                    </Button>
-                  </TableCell>
+          <>
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>Photo</TableHead>
+                  <TableHead>Card No.</TableHead>
+                  <TableHead>Family Head</TableHead>
+                  <TableHead>Members</TableHead>
+                  <TableHead>Created</TableHead>
+                  <TableHead className="text-right">Actions</TableHead>
                 </TableRow>
-              ))}
-            </TableBody>
-          </Table>
+              </TableHeader>
+              <TableBody>
+                {pagination.paginatedItems.map((f) => (
+                  <TableRow key={f.id}>
+                    <TableCell>
+                      {f.photo ? (
+                        <img src={f.photo} alt="" className="w-10 h-10 rounded-full object-cover" />
+                      ) : (
+                        <div className="w-10 h-10 rounded-full bg-secondary flex items-center justify-center text-xs text-muted-foreground">N/A</div>
+                      )}
+                    </TableCell>
+                    <TableCell className="font-mono text-sm">{f.card_number}</TableCell>
+                    <TableCell>{f.family_head_name}</TableCell>
+                    <TableCell>{f.total_members}</TableCell>
+                    <TableCell className="text-sm text-muted-foreground">{new Date(f.created_at).toLocaleDateString()}</TableCell>
+                    <TableCell className="text-right">
+                      <Button variant="ghost" size="icon" onClick={() => handleDelete(f.id, f.card_number)}>
+                        <Trash2 size={16} className="text-destructive" />
+                      </Button>
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+            <TablePagination {...pagination} />
+          </>
         )}
       </div>
     </div>

@@ -9,6 +9,8 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import { Badge } from "@/components/ui/badge";
 import { useToast } from "@/hooks/use-toast";
 import { Plus, Trash2, Search } from "lucide-react";
+import { usePagination } from "@/hooks/use-pagination";
+import { TablePagination } from "@/components/TablePagination";
 
 interface Member {
   id: string;
@@ -62,7 +64,6 @@ export default function AdminMembers() {
     if (error) {
       toast({ title: "Error", description: "Failed to add member", variant: "destructive" });
     } else {
-      // Update family total_members count
       const { data: count } = await supabase.from("members").select("id", { count: "exact" }).eq("family_id", selectedFamily);
       if (count) {
         await supabase.from("families").update({ total_members: count.length }).eq("id", selectedFamily);
@@ -93,6 +94,8 @@ export default function AdminMembers() {
       m.families?.card_number?.toLowerCase().includes(search.toLowerCase()) ||
       m.families?.family_head_name?.toLowerCase().includes(search.toLowerCase())
   );
+
+  const pagination = usePagination(filtered, 10);
 
   return (
     <div className="space-y-6">
@@ -133,7 +136,7 @@ export default function AdminMembers() {
 
       <div className="flex items-center gap-2">
         <Search size={16} className="text-muted-foreground" />
-        <Input placeholder="Search members..." value={search} onChange={(e) => setSearch(e.target.value)} className="max-w-sm" />
+        <Input placeholder="Search members..." value={search} onChange={(e) => { setSearch(e.target.value); pagination.setPage(1); }} className="max-w-sm" />
       </div>
 
       <div className="border border-border rounded-xl bg-card overflow-hidden">
@@ -142,38 +145,41 @@ export default function AdminMembers() {
         ) : filtered.length === 0 ? (
           <p className="text-muted-foreground text-sm p-6">No members found.</p>
         ) : (
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>Name</TableHead>
-                <TableHead>Family</TableHead>
-                <TableHead>Card No.</TableHead>
-                <TableHead>Status</TableHead>
-                <TableHead>Joined</TableHead>
-                <TableHead className="text-right">Actions</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {filtered.map((m) => (
-                <TableRow key={m.id}>
-                  <TableCell className="font-medium">{m.member_name}</TableCell>
-                  <TableCell>{m.families?.family_head_name || "—"}</TableCell>
-                  <TableCell className="font-mono text-sm">{m.families?.card_number || "—"}</TableCell>
-                  <TableCell>
-                    <Badge variant={m.status === "active" ? "default" : "secondary"}>
-                      {m.status}
-                    </Badge>
-                  </TableCell>
-                  <TableCell className="text-sm text-muted-foreground">{new Date(m.created_at).toLocaleDateString()}</TableCell>
-                  <TableCell className="text-right">
-                    <Button variant="ghost" size="icon" onClick={() => handleDelete(m.id, m.family_id)}>
-                      <Trash2 size={16} className="text-destructive" />
-                    </Button>
-                  </TableCell>
+          <>
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>Name</TableHead>
+                  <TableHead>Family</TableHead>
+                  <TableHead>Card No.</TableHead>
+                  <TableHead>Status</TableHead>
+                  <TableHead>Joined</TableHead>
+                  <TableHead className="text-right">Actions</TableHead>
                 </TableRow>
-              ))}
-            </TableBody>
-          </Table>
+              </TableHeader>
+              <TableBody>
+                {pagination.paginatedItems.map((m) => (
+                  <TableRow key={m.id}>
+                    <TableCell className="font-medium">{m.member_name}</TableCell>
+                    <TableCell>{m.families?.family_head_name || "—"}</TableCell>
+                    <TableCell className="font-mono text-sm">{m.families?.card_number || "—"}</TableCell>
+                    <TableCell>
+                      <Badge variant={m.status === "active" ? "default" : "secondary"}>
+                        {m.status}
+                      </Badge>
+                    </TableCell>
+                    <TableCell className="text-sm text-muted-foreground">{new Date(m.created_at).toLocaleDateString()}</TableCell>
+                    <TableCell className="text-right">
+                      <Button variant="ghost" size="icon" onClick={() => handleDelete(m.id, m.family_id)}>
+                        <Trash2 size={16} className="text-destructive" />
+                      </Button>
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+            <TablePagination {...pagination} />
+          </>
         )}
       </div>
     </div>

@@ -7,6 +7,8 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Badge } from "@/components/ui/badge";
 import { useToast } from "@/hooks/use-toast";
 import { Search, Check } from "lucide-react";
+import { usePagination } from "@/hooks/use-pagination";
+import { TablePagination } from "@/components/TablePagination";
 
 interface Subscription {
   id: string;
@@ -20,7 +22,7 @@ interface Subscription {
 }
 
 const MONTHS = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
-const MONTHLY_AMOUNT = 100; // per member per month
+const MONTHLY_AMOUNT = 100;
 
 export default function AdminPayments() {
   const [subscriptions, setSubscriptions] = useState<Subscription[]>([]);
@@ -90,6 +92,8 @@ export default function AdminPayments() {
   const totalCollection = filtered.filter((s) => s.paid_status === "paid").reduce((acc, s) => acc + Number(s.amount), 0);
   const unpaidTotal = filtered.filter((s) => s.paid_status === "unpaid").reduce((acc, s) => acc + Number(s.amount), 0);
 
+  const pagination = usePagination(filtered, 10);
+
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
@@ -118,7 +122,7 @@ export default function AdminPayments() {
       <div className="flex flex-wrap items-center gap-3">
         <div className="flex items-center gap-2">
           <Search size={16} className="text-muted-foreground" />
-          <Input placeholder="Search by card no. or name..." value={search} onChange={(e) => setSearch(e.target.value)} className="max-w-xs" />
+          <Input placeholder="Search by card no. or name..." value={search} onChange={(e) => { setSearch(e.target.value); pagination.setPage(1); }} className="max-w-xs" />
         </div>
         <Select value={filterStatus} onValueChange={setFilterStatus}>
           <SelectTrigger className="w-32"><SelectValue /></SelectTrigger>
@@ -144,44 +148,47 @@ export default function AdminPayments() {
         ) : filtered.length === 0 ? (
           <p className="text-muted-foreground text-sm p-6">No payment records found.</p>
         ) : (
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>Card No.</TableHead>
-                <TableHead>Family Head</TableHead>
-                <TableHead>Month</TableHead>
-                <TableHead>Members</TableHead>
-                <TableHead>Amount</TableHead>
-                <TableHead>Status</TableHead>
-                <TableHead>Paid Date</TableHead>
-                <TableHead className="text-right">Actions</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {filtered.map((s) => (
-                <TableRow key={s.id}>
-                  <TableCell className="font-mono text-sm">{s.families?.card_number}</TableCell>
-                  <TableCell>{s.families?.family_head_name}</TableCell>
-                  <TableCell>{MONTHS[s.month - 1]} {s.year}</TableCell>
-                  <TableCell>{s.families?.total_members}</TableCell>
-                  <TableCell className="tabular-nums">${Number(s.amount).toLocaleString()}</TableCell>
-                  <TableCell>
-                    <Badge variant={s.paid_status === "paid" ? "default" : "destructive"}>
-                      {s.paid_status}
-                    </Badge>
-                  </TableCell>
-                  <TableCell className="text-sm text-muted-foreground">{s.paid_date || "—"}</TableCell>
-                  <TableCell className="text-right">
-                    {s.paid_status === "unpaid" && (
-                      <Button variant="ghost" size="sm" onClick={() => markAsPaid(s.id)}>
-                        <Check size={14} /> Mark Paid
-                      </Button>
-                    )}
-                  </TableCell>
+          <>
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>Card No.</TableHead>
+                  <TableHead>Family Head</TableHead>
+                  <TableHead>Month</TableHead>
+                  <TableHead>Members</TableHead>
+                  <TableHead>Amount</TableHead>
+                  <TableHead>Status</TableHead>
+                  <TableHead>Paid Date</TableHead>
+                  <TableHead className="text-right">Actions</TableHead>
                 </TableRow>
-              ))}
-            </TableBody>
-          </Table>
+              </TableHeader>
+              <TableBody>
+                {pagination.paginatedItems.map((s) => (
+                  <TableRow key={s.id}>
+                    <TableCell className="font-mono text-sm">{s.families?.card_number}</TableCell>
+                    <TableCell>{s.families?.family_head_name}</TableCell>
+                    <TableCell>{MONTHS[s.month - 1]} {s.year}</TableCell>
+                    <TableCell>{s.families?.total_members}</TableCell>
+                    <TableCell className="tabular-nums">${Number(s.amount).toLocaleString()}</TableCell>
+                    <TableCell>
+                      <Badge variant={s.paid_status === "paid" ? "default" : "destructive"}>
+                        {s.paid_status}
+                      </Badge>
+                    </TableCell>
+                    <TableCell className="text-sm text-muted-foreground">{s.paid_date || "—"}</TableCell>
+                    <TableCell className="text-right">
+                      {s.paid_status === "unpaid" && (
+                        <Button variant="ghost" size="sm" onClick={() => markAsPaid(s.id)}>
+                          <Check size={14} /> Mark Paid
+                        </Button>
+                      )}
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+            <TablePagination {...pagination} />
+          </>
         )}
       </div>
     </div>
