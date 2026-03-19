@@ -64,7 +64,7 @@ export default function Login() {
                 type="text"
                 value={username}
                 onChange={(e) => setUsername(e.target.value)}
-                placeholder={role}
+                placeholder="Enter username"
                 className="h-10"
               />
             </div>
@@ -82,10 +82,6 @@ export default function Login() {
               Sign in
             </Button>
           </form>
-
-          <p className="text-xs text-center text-muted-foreground">
-            Demo: <span className="font-medium text-foreground">{role}</span> / <span className="font-medium text-foreground">{role}</span>
-          </p>
         </div>
       </motion.div>
     </div>
