@@ -36,7 +36,10 @@ export default function Login() {
   };
 
   return (
-    <div className="min-h-svh flex flex-col items-center justify-center bg-background p-6">
+    <div className="min-h-svh flex flex-col items-center justify-center bg-background p-6 relative">
+      <div className="absolute top-4 right-4">
+        <ThemeToggle />
+      </div>
       <motion.div
         initial={{ opacity: 0, y: 16 }}
         animate={{ opacity: 1, y: 0 }}
