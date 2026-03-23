@@ -66,7 +66,7 @@ export default function EntrySearchFamily() {
     <div className="space-y-6">
       <div>
         <h2 className="text-2xl font-semibold tracking-tight text-foreground">Search Family</h2>
-        <p className="text-muted-foreground text-sm">Enter a card number (e.g. BE-001) to view family details.</p>
+        <p className="text-muted-foreground text-sm">Search by card number (e.g. BE-001, be001, 001) or family head name.</p>
       </div>
 
       <div className="flex gap-3">
