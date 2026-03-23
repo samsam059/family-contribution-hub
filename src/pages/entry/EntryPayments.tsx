@@ -105,7 +105,7 @@ export default function EntryPayments() {
               {unpaidSubs.length > 0 && (
                 <Badge variant="destructive" className="text-sm">
                   <DollarSign className="h-3 w-3 mr-1" />
-                  Pending: ${totalPending.toFixed(2)} ({unpaidSubs.length} months)
+                  Pending: ₹{totalPending.toFixed(2)} ({unpaidSubs.length} months)
                 </Badge>
               )}
             </CardTitle>
