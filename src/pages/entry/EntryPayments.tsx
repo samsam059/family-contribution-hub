@@ -90,7 +90,7 @@ export default function EntryPayments() {
 
       <div className="flex gap-3">
         <Input
-          placeholder="Card Number (e.g. BE-001)"
+          placeholder="Card number or name (e.g. BE-001, 001, John)"
           value={cardNumber}
           onChange={(e) => setCardNumber(e.target.value)}
           onKeyDown={(e) => e.key === "Enter" && handleSearch()}
