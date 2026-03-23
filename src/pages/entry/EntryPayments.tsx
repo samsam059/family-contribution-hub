@@ -127,7 +127,7 @@ export default function EntryPayments() {
                   {subscriptions.map((sub) => (
                     <TableRow key={sub.id}>
                       <TableCell>{MONTH_NAMES[sub.month]} {sub.year}</TableCell>
-                      <TableCell>${Number(sub.amount).toFixed(2)}</TableCell>
+                      <TableCell>₹{Number(sub.amount).toFixed(2)}</TableCell>
                       <TableCell>
                         <Badge variant={sub.paid_status === "paid" ? "default" : "destructive"}>
                           {sub.paid_status}
