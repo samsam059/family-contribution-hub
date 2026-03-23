@@ -1,15 +1,17 @@
 # Memory: index.md
 Updated: now
 
-Design system: Clean, Minimal, Professional light theme
-- Background: hsl(0, 0%, 98%) - near-white
-- Foreground: hsl(240, 10%, 10%) - near-black
-- Card: hsl(0, 0%, 100%) - pure white
-- Primary: hsl(263, 70%, 50%) - Deep Violet
-- Accent: hsl(263, 30%, 93%) - Soft Violet tint
-- Muted: hsl(240, 5%, 93%) - Soft Gray
-- Sidebar: hsl(263, 60%, 28%) - Dark Violet
-- Border: hsl(240, 6%, 90%) - Light gray
+Design system: Lavender + Neon Purple palette (dark theme)
+- Background: hsl(252, 53%, 8%) - #0F0A1F night
+- Primary: hsl(258, 90%, 64%) - #8050F6 bright purple
+- Accent: hsl(285, 97%, 66%) - #CA55FD neon magenta
+- Card: hsl(255, 40%, 12%)
+- Sidebar: hsl(251, 60%, 15%)
 - Font: Inter
 - All colors defined as HSL in index.css semantic tokens
-- Light theme (no dark mode)
+
+Business rules:
+- Subscription: ₹10/month per baptized member only
+- Members managed inline within Families page (expandable rows)
+- Member fields: Name, DOB, Marital Status, Marriage Date, Profession, Baptized (Yes/No)
+- Currency: ₹ (Indian Rupees)
