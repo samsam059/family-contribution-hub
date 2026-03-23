@@ -41,10 +41,14 @@ export default function EntryPayments() {
     if (!cardNumber.trim()) return;
     setLoading(true);
     setSearched(true);
+
+    const raw = cardNumber.trim();
+    const normalized = raw.replace(/[-\s]/g, "").toUpperCase();
+
     const { data } = await supabase
       .from("families")
       .select("*")
-      .ilike("card_number", `%${cardNumber.trim()}%`)
+      .or(`card_number.ilike.%${raw}%,card_number.ilike.%${normalized}%,family_head_name.ilike.%${raw}%`)
       .limit(1)
       .maybeSingle();
     setFamily(data);
