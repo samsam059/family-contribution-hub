@@ -85,7 +85,7 @@ export default function EntryPayments() {
     <div className="space-y-6">
       <div>
         <h2 className="text-2xl font-semibold tracking-tight text-foreground">Payment Entry</h2>
-        <p className="text-muted-foreground text-sm">Enter card number, view pending amount, and mark payments.</p>
+        <p className="text-muted-foreground text-sm">Search by card number or name, view pending amount, and mark payments.</p>
       </div>
 
       <div className="flex gap-3">
