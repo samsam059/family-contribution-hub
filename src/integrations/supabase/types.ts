@@ -43,24 +43,39 @@ export type Database = {
       }
       members: {
         Row: {
+          baptized: boolean
           created_at: string
+          dob: string | null
           family_id: string
           id: string
+          marital_status: string
+          marriage_date: string | null
           member_name: string
+          profession: string | null
           status: string
         }
         Insert: {
+          baptized?: boolean
           created_at?: string
+          dob?: string | null
           family_id: string
           id?: string
+          marital_status?: string
+          marriage_date?: string | null
           member_name: string
+          profession?: string | null
           status?: string
         }
         Update: {
+          baptized?: boolean
           created_at?: string
+          dob?: string | null
           family_id?: string
           id?: string
+          marital_status?: string
+          marriage_date?: string | null
           member_name?: string
+          profession?: string | null
           status?: string
         }
         Relationships: [

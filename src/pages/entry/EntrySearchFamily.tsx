@@ -13,6 +13,7 @@ interface FamilyResult {
   photo: string | null;
   pendingMonths: number;
   pendingAmount: number;
+  baptizedCount: number;
 }
 
 export default function EntrySearchFamily() {
@@ -34,6 +35,14 @@ export default function EntrySearchFamily() {
       .maybeSingle();
 
     if (data) {
+      // Count baptized members
+      const { data: members } = await supabase
+        .from("members")
+        .select("baptized")
+        .eq("family_id", data.id);
+      
+      const baptizedCount = members?.filter((m: any) => m.baptized).length ?? 0;
+
       const { data: subs } = await supabase
         .from("subscriptions")
         .select("amount")
@@ -43,7 +52,7 @@ export default function EntrySearchFamily() {
       const pendingMonths = subs?.length ?? 0;
       const pendingAmount = subs?.reduce((sum, s) => sum + Number(s.amount), 0) ?? 0;
 
-      setFamily({ ...data, pendingMonths, pendingAmount });
+      setFamily({ ...data, pendingMonths, pendingAmount, baptizedCount });
     } else {
       setFamily(null);
     }
@@ -87,11 +96,16 @@ export default function EntrySearchFamily() {
               </div>
             </div>
 
-            <div className="grid grid-cols-3 gap-3 pt-2">
+            <div className="grid grid-cols-2 gap-3 pt-2">
               <div className="rounded-lg bg-muted/50 p-3 text-center">
                 <Users className="h-4 w-4 mx-auto mb-1 text-primary" />
                 <p className="text-lg font-bold text-foreground">{family.total_members}</p>
-                <p className="text-xs text-muted-foreground">Members</p>
+                <p className="text-xs text-muted-foreground">Total Members</p>
+              </div>
+              <div className="rounded-lg bg-muted/50 p-3 text-center">
+                <Users className="h-4 w-4 mx-auto mb-1 text-accent" />
+                <p className="text-lg font-bold text-foreground">{family.baptizedCount}</p>
+                <p className="text-xs text-muted-foreground">Baptized</p>
               </div>
               <div className="rounded-lg bg-muted/50 p-3 text-center">
                 <CalendarClock className="h-4 w-4 mx-auto mb-1 text-accent" />
@@ -100,10 +114,11 @@ export default function EntrySearchFamily() {
               </div>
               <div className="rounded-lg bg-muted/50 p-3 text-center">
                 <DollarSign className="h-4 w-4 mx-auto mb-1 text-destructive" />
-                <p className="text-lg font-bold text-foreground">${family.pendingAmount.toFixed(2)}</p>
+                <p className="text-lg font-bold text-foreground">₹{family.pendingAmount.toFixed(2)}</p>
                 <p className="text-xs text-muted-foreground">Pending Amount</p>
               </div>
             </div>
+            <p className="text-xs text-muted-foreground text-center">Subscription: ₹10/month per baptized member</p>
           </CardContent>
         </Card>
       )}
