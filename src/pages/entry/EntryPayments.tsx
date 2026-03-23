@@ -41,10 +41,14 @@ export default function EntryPayments() {
     if (!cardNumber.trim()) return;
     setLoading(true);
     setSearched(true);
+
+    const raw = cardNumber.trim();
+    const normalized = raw.replace(/[-\s]/g, "").toUpperCase();
+
     const { data } = await supabase
       .from("families")
       .select("*")
-      .ilike("card_number", `%${cardNumber.trim()}%`)
+      .or(`card_number.ilike.%${raw}%,card_number.ilike.%${normalized}%,family_head_name.ilike.%${raw}%`)
       .limit(1)
       .maybeSingle();
     setFamily(data);
@@ -81,12 +85,12 @@ export default function EntryPayments() {
     <div className="space-y-6">
       <div>
         <h2 className="text-2xl font-semibold tracking-tight text-foreground">Payment Entry</h2>
-        <p className="text-muted-foreground text-sm">Enter card number, view pending amount, and mark payments.</p>
+        <p className="text-muted-foreground text-sm">Search by card number or name, view pending amount, and mark payments.</p>
       </div>
 
       <div className="flex gap-3">
         <Input
-          placeholder="Card Number (e.g. BE-001)"
+          placeholder="Card number or name (e.g. BE-001, 001, John)"
           value={cardNumber}
           onChange={(e) => setCardNumber(e.target.value)}
           onKeyDown={(e) => e.key === "Enter" && handleSearch()}

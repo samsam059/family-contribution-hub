@@ -27,10 +27,13 @@ export default function EntrySearchFamily() {
     setLoading(true);
     setSearched(true);
 
+    const raw = cardNumber.trim();
+    const normalized = raw.replace(/[-\s]/g, "").toUpperCase();
+
     const { data } = await supabase
       .from("families")
       .select("*")
-      .ilike("card_number", `%${cardNumber.trim()}%`)
+      .or(`card_number.ilike.%${raw}%,card_number.ilike.%${normalized}%,family_head_name.ilike.%${raw}%`)
       .limit(1)
       .maybeSingle();
 
@@ -63,12 +66,12 @@ export default function EntrySearchFamily() {
     <div className="space-y-6">
       <div>
         <h2 className="text-2xl font-semibold tracking-tight text-foreground">Search Family</h2>
-        <p className="text-muted-foreground text-sm">Enter a card number (e.g. BE-001) to view family details.</p>
+        <p className="text-muted-foreground text-sm">Search by card number (e.g. BE-001, be001, 001) or family head name.</p>
       </div>
 
       <div className="flex gap-3">
         <Input
-          placeholder="Card Number (e.g. BE-001)"
+          placeholder="Card number or name (e.g. BE-001, 001, John)"
           value={cardNumber}
           onChange={(e) => setCardNumber(e.target.value)}
           onKeyDown={(e) => e.key === "Enter" && handleSearch()}
