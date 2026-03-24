@@ -114,7 +114,7 @@ export default function AdminPayments() {
           <p className="text-2xl font-semibold mt-1 tabular-nums text-destructive">₹{unpaidTotal.toLocaleString()}</p>
         </div>
         <div className="p-4 border border-border rounded-xl bg-card">
-          <p className="text-xs text-muted-foreground uppercase tracking-wider">Rate: ${MONTHLY_AMOUNT}/member/month</p>
+          <p className="text-xs text-muted-foreground uppercase tracking-wider">Rate: ₹{MONTHLY_AMOUNT}/member/month</p>
           <p className="text-2xl font-semibold mt-1 tabular-nums">{filtered.length} records</p>
         </div>
       </div>
