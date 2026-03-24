@@ -107,7 +107,7 @@ export default function AdminPayments() {
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
         <div className="p-4 border border-border rounded-xl bg-card">
           <p className="text-xs text-muted-foreground uppercase tracking-wider">Total Collected</p>
-          <p className="text-2xl font-semibold mt-1 tabular-nums">${totalCollection.toLocaleString()}</p>
+          <p className="text-2xl font-semibold mt-1 tabular-nums">₹{totalCollection.toLocaleString()}</p>
         </div>
         <div className="p-4 border border-border rounded-xl bg-card">
           <p className="text-xs text-muted-foreground uppercase tracking-wider">Total Unpaid</p>
