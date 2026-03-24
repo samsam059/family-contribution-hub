@@ -123,7 +123,7 @@ export default function AdminReports() {
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
             <div className="p-4 border border-border rounded-xl bg-card">
               <p className="text-xs text-muted-foreground uppercase tracking-wider">Total Collections</p>
-              <p className="text-2xl font-semibold mt-1 tabular-nums">${report.totalCollections.toLocaleString()}</p>
+              <p className="text-2xl font-semibold mt-1 tabular-nums">₹{report.totalCollections.toLocaleString()}</p>
             </div>
             <div className="p-4 border border-border rounded-xl bg-card">
               <p className="text-xs text-muted-foreground uppercase tracking-wider">Paid Families</p>

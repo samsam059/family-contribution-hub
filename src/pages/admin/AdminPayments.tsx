@@ -169,7 +169,7 @@ export default function AdminPayments() {
                     <TableCell>{s.families?.family_head_name}</TableCell>
                     <TableCell>{MONTHS[s.month - 1]} {s.year}</TableCell>
                     <TableCell>{s.families?.total_members}</TableCell>
-                    <TableCell className="tabular-nums">${Number(s.amount).toLocaleString()}</TableCell>
+                    <TableCell className="tabular-nums">₹{Number(s.amount).toLocaleString()}</TableCell>
                     <TableCell>
                       <Badge variant={s.paid_status === "paid" ? "default" : "destructive"}>
                         {s.paid_status}
