@@ -52,6 +52,7 @@ export type Database = {
           marriage_date: string | null
           member_name: string
           profession: string | null
+          relation: string
           status: string
         }
         Insert: {
@@ -64,6 +65,7 @@ export type Database = {
           marriage_date?: string | null
           member_name: string
           profession?: string | null
+          relation?: string
           status?: string
         }
         Update: {
@@ -76,6 +78,7 @@ export type Database = {
           marriage_date?: string | null
           member_name?: string
           profession?: string | null
+          relation?: string
           status?: string
         }
         Relationships: [
@@ -127,6 +130,7 @@ export type Database = {
         Row: {
           amount: number
           created_at: string
+          entry_user_id: string | null
           family_id: string
           id: string
           month: number
@@ -137,6 +141,7 @@ export type Database = {
         Insert: {
           amount?: number
           created_at?: string
+          entry_user_id?: string | null
           family_id: string
           id?: string
           month: number
@@ -147,6 +152,7 @@ export type Database = {
         Update: {
           amount?: number
           created_at?: string
+          entry_user_id?: string | null
           family_id?: string
           id?: string
           month?: number
