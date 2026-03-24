@@ -84,7 +84,7 @@ export default function AdminReports() {
     doc.setFontSize(16);
     doc.text(`${period.charAt(0).toUpperCase() + period.slice(1)} Report`, 14, 20);
     doc.setFontSize(10);
-    doc.text(`Total Collections: $${report.totalCollections.toLocaleString()}`, 14, 30);
+    doc.text(`Total Collections: Rs.${report.totalCollections.toLocaleString()}`, 14, 30);
     doc.text(`Paid Families: ${report.paidFamilies} | Unpaid Families: ${report.unpaidFamilies} | Members: ${report.membersCount}`, 14, 36);
 
     autoTable(doc, {
