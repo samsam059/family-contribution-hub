@@ -90,7 +90,7 @@ export default function AdminReports() {
     autoTable(doc, {
       startY: 44,
       head: [["Card No.", "Family Head", "Month", "Amount", "Status"]],
-      body: report.records.map((r) => [r.card_number, r.family_head_name, `${MONTHS[r.month - 1]} ${r.year}`, `$${r.amount}`, r.paid_status]),
+      body: report.records.map((r) => [r.card_number, r.family_head_name, `${MONTHS[r.month - 1]} ${r.year}`, `Rs.${r.amount}`, r.paid_status]),
     });
 
     doc.save(`report_${period}.pdf`);
