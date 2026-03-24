@@ -107,14 +107,14 @@ export default function AdminPayments() {
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
         <div className="p-4 border border-border rounded-xl bg-card">
           <p className="text-xs text-muted-foreground uppercase tracking-wider">Total Collected</p>
-          <p className="text-2xl font-semibold mt-1 tabular-nums">${totalCollection.toLocaleString()}</p>
+          <p className="text-2xl font-semibold mt-1 tabular-nums">₹{totalCollection.toLocaleString()}</p>
         </div>
         <div className="p-4 border border-border rounded-xl bg-card">
           <p className="text-xs text-muted-foreground uppercase tracking-wider">Total Unpaid</p>
-          <p className="text-2xl font-semibold mt-1 tabular-nums text-destructive">${unpaidTotal.toLocaleString()}</p>
+          <p className="text-2xl font-semibold mt-1 tabular-nums text-destructive">₹{unpaidTotal.toLocaleString()}</p>
         </div>
         <div className="p-4 border border-border rounded-xl bg-card">
-          <p className="text-xs text-muted-foreground uppercase tracking-wider">Rate: ${MONTHLY_AMOUNT}/member/month</p>
+          <p className="text-xs text-muted-foreground uppercase tracking-wider">Rate: ₹{MONTHLY_AMOUNT}/member/month</p>
           <p className="text-2xl font-semibold mt-1 tabular-nums">{filtered.length} records</p>
         </div>
       </div>
@@ -169,7 +169,7 @@ export default function AdminPayments() {
                     <TableCell>{s.families?.family_head_name}</TableCell>
                     <TableCell>{MONTHS[s.month - 1]} {s.year}</TableCell>
                     <TableCell>{s.families?.total_members}</TableCell>
-                    <TableCell className="tabular-nums">${Number(s.amount).toLocaleString()}</TableCell>
+                    <TableCell className="tabular-nums">₹{Number(s.amount).toLocaleString()}</TableCell>
                     <TableCell>
                       <Badge variant={s.paid_status === "paid" ? "default" : "destructive"}>
                         {s.paid_status}

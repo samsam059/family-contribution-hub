@@ -26,6 +26,7 @@ interface Member {
   marriage_date: string | null;
   profession: string | null;
   baptized: boolean;
+  relation: string;
 }
 
 interface Family {
@@ -37,18 +38,27 @@ interface Family {
   created_at: string;
 }
 
+const RELATION_OPTIONS = ["Father", "Mother", "Son", "Daughter", "Grandfather", "Grandmother", "Other"];
+
 export default function AdminFamilies() {
   const [families, setFamilies] = useState<Family[]>([]);
   const [loading, setLoading] = useState(true);
   const [dialogOpen, setDialogOpen] = useState(false);
   const [search, setSearch] = useState("");
-  const [headName, setHeadName] = useState("");
   const [photoFile, setPhotoFile] = useState<File | null>(null);
   const [submitting, setSubmitting] = useState(false);
   const [expandedFamily, setExpandedFamily] = useState<string | null>(null);
   const [familyMembers, setFamilyMembers] = useState<Record<string, Member[]>>({});
   const [addMemberOpen, setAddMemberOpen] = useState<string | null>(null);
   const { toast } = useToast();
+
+  // Family head fields
+  const [headName, setHeadName] = useState("");
+  const [headDob, setHeadDob] = useState<Date | undefined>();
+  const [headMarital, setHeadMarital] = useState("single");
+  const [headMarriageDate, setHeadMarriageDate] = useState<Date | undefined>();
+  const [headProfession, setHeadProfession] = useState("");
+  const [headBaptized, setHeadBaptized] = useState("no");
 
   // New member form state
   const [newName, setNewName] = useState("");
@@ -57,6 +67,8 @@ export default function AdminFamilies() {
   const [newMarriageDate, setNewMarriageDate] = useState<Date | undefined>();
   const [newProfession, setNewProfession] = useState("");
   const [newBaptized, setNewBaptized] = useState("no");
+  const [newRelation, setNewRelation] = useState("Other");
+  const [newCustomRelation, setNewCustomRelation] = useState("");
   const [addingMember, setAddingMember] = useState(false);
 
   const fetchFamilies = async () => {
@@ -93,6 +105,16 @@ export default function AdminFamilies() {
     return `BE-${String(num).padStart(3, "0")}`;
   };
 
+  const resetHeadForm = () => {
+    setHeadName("");
+    setHeadDob(undefined);
+    setHeadMarital("single");
+    setHeadMarriageDate(undefined);
+    setHeadProfession("");
+    setHeadBaptized("no");
+    setPhotoFile(null);
+  };
+
   const handleAddFamily = async () => {
     if (!headName.trim()) {
       toast({ title: "Error", description: "Family head name is required", variant: "destructive" });
@@ -113,17 +135,30 @@ export default function AdminFamilies() {
         }
       }
 
-      const { error } = await supabase.from("families").insert({
+      const { data: familyData, error } = await supabase.from("families").insert({
         card_number: cardNumber,
         family_head_name: headName.trim(),
         photo: photoUrl,
-        total_members: 0,
-      });
+        total_members: 1,
+      }).select().single();
 
       if (error) throw error;
+
+      // Add family head as a member
+      await supabase.from("members").insert({
+        family_id: familyData.id,
+        member_name: headName.trim(),
+        status: "active",
+        relation: "Head",
+        dob: headDob ? format(headDob, "yyyy-MM-dd") : null,
+        marital_status: headMarital,
+        marriage_date: headMarital === "married" && headMarriageDate ? format(headMarriageDate, "yyyy-MM-dd") : null,
+        profession: headProfession.trim() || null,
+        baptized: headBaptized === "yes",
+      });
+
       toast({ title: "Family added", description: `Card number: ${cardNumber}` });
-      setHeadName("");
-      setPhotoFile(null);
+      resetHeadForm();
       setDialogOpen(false);
       fetchFamilies();
     } catch {
@@ -150,6 +185,8 @@ export default function AdminFamilies() {
     setNewMarriageDate(undefined);
     setNewProfession("");
     setNewBaptized("no");
+    setNewRelation("Other");
+    setNewCustomRelation("");
   };
 
   const handleAddMember = async (familyId: string) => {
@@ -158,10 +195,12 @@ export default function AdminFamilies() {
       return;
     }
     setAddingMember(true);
+    const relation = newRelation === "Other" ? (newCustomRelation.trim() || "Other") : newRelation;
     const { error } = await supabase.from("members").insert({
       family_id: familyId,
       member_name: newName.trim(),
       status: "active",
+      relation,
       dob: newDob ? format(newDob, "yyyy-MM-dd") : null,
       marital_status: newMarital,
       marriage_date: newMarital === "married" && newMarriageDate ? format(newMarriageDate, "yyyy-MM-dd") : null,
@@ -172,7 +211,6 @@ export default function AdminFamilies() {
     if (error) {
       toast({ title: "Error", description: error.message, variant: "destructive" });
     } else {
-      // Update total_members count
       const { data: count } = await supabase.from("members").select("id", { count: "exact" }).eq("family_id", familyId);
       if (count) {
         await supabase.from("families").update({ total_members: count.length }).eq("id", familyId);
@@ -206,6 +244,86 @@ export default function AdminFamilies() {
 
   const pagination = usePagination(filtered, 10);
 
+  const MemberFormFields = ({ prefix, name, setName, dob, setDob, marital, setMarital, marriageDate, setMarriageDate, profession, setProfession, baptized, setBaptized, relation, setRelation, customRelation, setCustomRelation, showRelation = true }: any) => (
+    <div className="space-y-4">
+      <div>
+        <Label>Name *</Label>
+        <Input value={name} onChange={(e: any) => setName(e.target.value)} placeholder="Member name" />
+      </div>
+      {showRelation && (
+        <div>
+          <Label>Relation</Label>
+          <Select value={relation} onValueChange={setRelation}>
+            <SelectTrigger><SelectValue /></SelectTrigger>
+            <SelectContent>
+              {RELATION_OPTIONS.map((r) => (
+                <SelectItem key={r} value={r}>{r}</SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+          {relation === "Other" && (
+            <Input className="mt-2" value={customRelation} onChange={(e: any) => setCustomRelation(e.target.value)} placeholder="Type relation..." />
+          )}
+        </div>
+      )}
+      <div>
+        <Label>Date of Birth</Label>
+        <Popover>
+          <PopoverTrigger asChild>
+            <Button variant="outline" className={cn("w-full justify-start text-left font-normal", !dob && "text-muted-foreground")}>
+              <CalendarIcon className="mr-2 h-4 w-4" />
+              {dob ? format(dob, "PPP") : "Pick a date"}
+            </Button>
+          </PopoverTrigger>
+          <PopoverContent className="w-auto p-0" align="start">
+            <Calendar mode="single" selected={dob} onSelect={setDob} initialFocus className="p-3 pointer-events-auto" captionLayout="dropdown-buttons" fromYear={1920} toYear={new Date().getFullYear()} />
+          </PopoverContent>
+        </Popover>
+      </div>
+      <div>
+        <Label>Marital Status</Label>
+        <Select value={marital} onValueChange={setMarital}>
+          <SelectTrigger><SelectValue /></SelectTrigger>
+          <SelectContent>
+            <SelectItem value="single">Single</SelectItem>
+            <SelectItem value="married">Married</SelectItem>
+          </SelectContent>
+        </Select>
+      </div>
+      {marital === "married" && (
+        <div>
+          <Label>Marriage Date</Label>
+          <Popover>
+            <PopoverTrigger asChild>
+              <Button variant="outline" className={cn("w-full justify-start text-left font-normal", !marriageDate && "text-muted-foreground")}>
+                <CalendarIcon className="mr-2 h-4 w-4" />
+                {marriageDate ? format(marriageDate, "PPP") : "Pick a date"}
+              </Button>
+            </PopoverTrigger>
+            <PopoverContent className="w-auto p-0" align="start">
+              <Calendar mode="single" selected={marriageDate} onSelect={setMarriageDate} initialFocus className="p-3 pointer-events-auto" captionLayout="dropdown-buttons" fromYear={1920} toYear={new Date().getFullYear()} />
+            </PopoverContent>
+          </Popover>
+        </div>
+      )}
+      <div>
+        <Label>Profession</Label>
+        <Input value={profession} onChange={(e: any) => setProfession(e.target.value)} placeholder="e.g. Teacher, Engineer" />
+      </div>
+      <div>
+        <Label>Baptized</Label>
+        <Select value={baptized} onValueChange={setBaptized}>
+          <SelectTrigger><SelectValue /></SelectTrigger>
+          <SelectContent>
+            <SelectItem value="yes">Yes</SelectItem>
+            <SelectItem value="no">No</SelectItem>
+          </SelectContent>
+        </Select>
+        <p className="text-xs text-muted-foreground mt-1">Only baptized members are included in subscription (₹10/head)</p>
+      </div>
+    </div>
+  );
+
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
@@ -213,20 +331,16 @@ export default function AdminFamilies() {
           <h2 className="text-2xl font-semibold tracking-tight mb-1">Families</h2>
           <p className="text-muted-foreground text-sm">Manage families and their members. Click a row to expand.</p>
         </div>
-        <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
+        <Dialog open={dialogOpen} onOpenChange={(open) => { setDialogOpen(open); if (!open) resetHeadForm(); }}>
           <DialogTrigger asChild>
             <Button><Plus size={16} /> Add Family</Button>
           </DialogTrigger>
-          <DialogContent>
+          <DialogContent className="max-w-md max-h-[90vh] overflow-y-auto">
             <DialogHeader><DialogTitle>Add New Family</DialogTitle></DialogHeader>
             <div className="space-y-4">
               <div>
                 <Label>Card Number</Label>
                 <Input disabled placeholder="Auto-generated (e.g. BE-001)" />
-              </div>
-              <div>
-                <Label>Family Head Name</Label>
-                <Input value={headName} onChange={(e) => setHeadName(e.target.value)} placeholder="Enter name" />
               </div>
               <div>
                 <Label>Upload Photo</Label>
@@ -237,6 +351,18 @@ export default function AdminFamilies() {
                     <input type="file" accept="image/*" className="hidden" onChange={(e) => setPhotoFile(e.target.files?.[0] || null)} />
                   </label>
                 </div>
+              </div>
+              <div className="border-t border-border pt-4">
+                <h4 className="text-sm font-semibold mb-3 text-foreground">Family Head Details</h4>
+                <MemberFormFields
+                  name={headName} setName={setHeadName}
+                  dob={headDob} setDob={setHeadDob}
+                  marital={headMarital} setMarital={setHeadMarital}
+                  marriageDate={headMarriageDate} setMarriageDate={setHeadMarriageDate}
+                  profession={headProfession} setProfession={setHeadProfession}
+                  baptized={headBaptized} setBaptized={setHeadBaptized}
+                  showRelation={false}
+                />
               </div>
               <Button onClick={handleAddFamily} disabled={submitting} className="w-full">
                 {submitting ? "Adding..." : "Add Family"}
@@ -307,72 +433,22 @@ export default function AdminFamilies() {
                                     <UserPlus size={14} className="mr-1" /> Add Member
                                   </Button>
                                 </DialogTrigger>
-                                <DialogContent className="max-w-md">
+                                <DialogContent className="max-w-md max-h-[90vh] overflow-y-auto">
                                   <DialogHeader><DialogTitle>Add Member to {f.card_number}</DialogTitle></DialogHeader>
-                                  <div className="space-y-4">
-                                    <div>
-                                      <Label>Name *</Label>
-                                      <Input value={newName} onChange={(e) => setNewName(e.target.value)} placeholder="Member name" />
-                                    </div>
-                                    <div>
-                                      <Label>Date of Birth</Label>
-                                      <Popover>
-                                        <PopoverTrigger asChild>
-                                          <Button variant="outline" className={cn("w-full justify-start text-left font-normal", !newDob && "text-muted-foreground")}>
-                                            <CalendarIcon className="mr-2 h-4 w-4" />
-                                            {newDob ? format(newDob, "PPP") : "Pick a date"}
-                                          </Button>
-                                        </PopoverTrigger>
-                                        <PopoverContent className="w-auto p-0" align="start">
-                                          <Calendar mode="single" selected={newDob} onSelect={setNewDob} initialFocus className="p-3 pointer-events-auto" captionLayout="dropdown-buttons" fromYear={1920} toYear={new Date().getFullYear()} />
-                                        </PopoverContent>
-                                      </Popover>
-                                    </div>
-                                    <div>
-                                      <Label>Marital Status</Label>
-                                      <Select value={newMarital} onValueChange={setNewMarital}>
-                                        <SelectTrigger><SelectValue /></SelectTrigger>
-                                        <SelectContent>
-                                          <SelectItem value="single">Single</SelectItem>
-                                          <SelectItem value="married">Married</SelectItem>
-                                        </SelectContent>
-                                      </Select>
-                                    </div>
-                                    {newMarital === "married" && (
-                                      <div>
-                                        <Label>Marriage Date</Label>
-                                        <Popover>
-                                          <PopoverTrigger asChild>
-                                            <Button variant="outline" className={cn("w-full justify-start text-left font-normal", !newMarriageDate && "text-muted-foreground")}>
-                                              <CalendarIcon className="mr-2 h-4 w-4" />
-                                              {newMarriageDate ? format(newMarriageDate, "PPP") : "Pick a date"}
-                                            </Button>
-                                          </PopoverTrigger>
-                                          <PopoverContent className="w-auto p-0" align="start">
-                                            <Calendar mode="single" selected={newMarriageDate} onSelect={setNewMarriageDate} initialFocus className="p-3 pointer-events-auto" captionLayout="dropdown-buttons" fromYear={1920} toYear={new Date().getFullYear()} />
-                                          </PopoverContent>
-                                        </Popover>
-                                      </div>
-                                    )}
-                                    <div>
-                                      <Label>Profession</Label>
-                                      <Input value={newProfession} onChange={(e) => setNewProfession(e.target.value)} placeholder="e.g. Teacher, Engineer" />
-                                    </div>
-                                    <div>
-                                      <Label>Baptized</Label>
-                                      <Select value={newBaptized} onValueChange={setNewBaptized}>
-                                        <SelectTrigger><SelectValue /></SelectTrigger>
-                                        <SelectContent>
-                                          <SelectItem value="yes">Yes</SelectItem>
-                                          <SelectItem value="no">No</SelectItem>
-                                        </SelectContent>
-                                      </Select>
-                                      <p className="text-xs text-muted-foreground mt-1">Only baptized members are included in subscription (₹10/head)</p>
-                                    </div>
-                                    <Button onClick={() => handleAddMember(f.id)} disabled={addingMember} className="w-full">
-                                      {addingMember ? "Adding..." : "Add Member"}
-                                    </Button>
-                                  </div>
+                                  <MemberFormFields
+                                    name={newName} setName={setNewName}
+                                    dob={newDob} setDob={setNewDob}
+                                    marital={newMarital} setMarital={setNewMarital}
+                                    marriageDate={newMarriageDate} setMarriageDate={setNewMarriageDate}
+                                    profession={newProfession} setProfession={setNewProfession}
+                                    baptized={newBaptized} setBaptized={setNewBaptized}
+                                    relation={newRelation} setRelation={setNewRelation}
+                                    customRelation={newCustomRelation} setCustomRelation={setNewCustomRelation}
+                                    showRelation={true}
+                                  />
+                                  <Button onClick={() => handleAddMember(f.id)} disabled={addingMember} className="w-full">
+                                    {addingMember ? "Adding..." : "Add Member"}
+                                  </Button>
                                 </DialogContent>
                               </Dialog>
                             </div>
@@ -387,6 +463,7 @@ export default function AdminFamilies() {
                                   <TableHeader>
                                     <TableRow>
                                       <TableHead>Name</TableHead>
+                                      <TableHead>Relation</TableHead>
                                       <TableHead>DOB</TableHead>
                                       <TableHead>Marital Status</TableHead>
                                       <TableHead>Profession</TableHead>
@@ -398,6 +475,7 @@ export default function AdminFamilies() {
                                     {familyMembers[f.id].map((m) => (
                                       <TableRow key={m.id}>
                                         <TableCell className="font-medium">{m.member_name}</TableCell>
+                                        <TableCell className="text-sm capitalize">{m.relation}</TableCell>
                                         <TableCell className="text-sm">{m.dob ? new Date(m.dob).toLocaleDateString() : "—"}</TableCell>
                                         <TableCell className="text-sm capitalize">
                                           {m.marital_status}

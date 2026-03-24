@@ -87,7 +87,7 @@ export default function AdminOverview() {
 
   const cards = [
     { label: "Total Families", value: stats.totalFamilies.toString(), icon: Users },
-    { label: "Total Collections", value: `$${stats.totalCollections.toFixed(2)}`, icon: DollarSign },
+    { label: "Total Collections", value: `₹${stats.totalCollections.toFixed(2)}`, icon: DollarSign },
     { label: "Active Members", value: stats.activeMembers.toString(), icon: BarChart3 },
     { label: "Pending Requests", value: stats.pendingRequests.toString(), icon: ClipboardList },
   ];

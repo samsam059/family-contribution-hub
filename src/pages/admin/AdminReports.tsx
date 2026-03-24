@@ -84,13 +84,13 @@ export default function AdminReports() {
     doc.setFontSize(16);
     doc.text(`${period.charAt(0).toUpperCase() + period.slice(1)} Report`, 14, 20);
     doc.setFontSize(10);
-    doc.text(`Total Collections: $${report.totalCollections.toLocaleString()}`, 14, 30);
+    doc.text(`Total Collections: Rs.${report.totalCollections.toLocaleString()}`, 14, 30);
     doc.text(`Paid Families: ${report.paidFamilies} | Unpaid Families: ${report.unpaidFamilies} | Members: ${report.membersCount}`, 14, 36);
 
     autoTable(doc, {
       startY: 44,
       head: [["Card No.", "Family Head", "Month", "Amount", "Status"]],
-      body: report.records.map((r) => [r.card_number, r.family_head_name, `${MONTHS[r.month - 1]} ${r.year}`, `$${r.amount}`, r.paid_status]),
+      body: report.records.map((r) => [r.card_number, r.family_head_name, `${MONTHS[r.month - 1]} ${r.year}`, `Rs.${r.amount}`, r.paid_status]),
     });
 
     doc.save(`report_${period}.pdf`);
@@ -123,7 +123,7 @@ export default function AdminReports() {
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
             <div className="p-4 border border-border rounded-xl bg-card">
               <p className="text-xs text-muted-foreground uppercase tracking-wider">Total Collections</p>
-              <p className="text-2xl font-semibold mt-1 tabular-nums">${report.totalCollections.toLocaleString()}</p>
+              <p className="text-2xl font-semibold mt-1 tabular-nums">₹{report.totalCollections.toLocaleString()}</p>
             </div>
             <div className="p-4 border border-border rounded-xl bg-card">
               <p className="text-xs text-muted-foreground uppercase tracking-wider">Paid Families</p>
