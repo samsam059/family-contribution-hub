@@ -129,7 +129,7 @@ export default function AdminPayments() {
           <h2 className="text-2xl font-semibold tracking-tight mb-1">Payments</h2>
           <p className="text-muted-foreground text-sm">Track subscription payments and dues.</p>
         </div>
-        <Button onClick={generateMonthlySubscriptions}>Generate Current Month</Button>
+        <Button onClick={generateMonthlySubscriptions}>Generate Subscriptions (from Apr 2026)</Button>
       </div>
 
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
