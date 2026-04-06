@@ -22,7 +22,7 @@ interface Subscription {
 }
 
 const MONTHS = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
-const MONTHLY_AMOUNT = 100;
+const MONTHLY_AMOUNT = 10;
 
 export default function AdminPayments() {
   const [subscriptions, setSubscriptions] = useState<Subscription[]>([]);
