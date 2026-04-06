@@ -169,7 +169,7 @@ export default function EntrySearchFamily() {
               </div>
             </div>
 
-            <p className="text-xs text-muted-foreground text-center">Subscription: ₹10/month per baptized member</p>
+            <p className="text-xs text-muted-foreground text-center">Subscription: ₹10/month per baptized member (from Apr 2026)</p>
 
             {/* Entry Button */}
             {family.pendingMonths > 0 && !showEntry && !verified && (
@@ -212,7 +212,9 @@ export default function EntrySearchFamily() {
             )}
 
             {family.pendingMonths === 0 && !verified && (
-              <p className="text-sm text-center text-primary font-medium">All payments up to date ✓</p>
+              <Badge variant="default" className="w-full justify-center py-2 text-sm">
+                <CheckCircle className="mr-2 h-4 w-4" /> All Paid ✓
+              </Badge>
             )}
           </CardContent>
         </Card>
