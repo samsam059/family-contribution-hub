@@ -54,30 +54,58 @@ export default function AdminPayments() {
   };
 
   const generateMonthlySubscriptions = async () => {
-    const currentMonth = new Date().getMonth() + 1;
-    const { data: families } = await supabase.from("families").select("id, total_members");
+    const now = new Date();
+    const currentMonth = now.getMonth() + 1; // 1-12
+    const currentYear = now.getFullYear();
+
+    // Start from April 2026
+    const startMonth = 4;
+    const startYear = 2026;
+
+    const { data: families } = await supabase.from("families").select("id");
     if (!families) return;
 
-    for (const family of families) {
-      const { data: existing } = await supabase
-        .from("subscriptions")
-        .select("id")
-        .eq("family_id", family.id)
-        .eq("month", currentMonth)
-        .eq("year", selectedYear)
-        .maybeSingle();
+    let generated = 0;
 
-      if (!existing) {
-        await supabase.from("subscriptions").insert({
-          family_id: family.id,
-          month: currentMonth,
-          year: selectedYear,
-          amount: family.total_members * MONTHLY_AMOUNT,
-          paid_status: "unpaid",
-        });
+    for (const family of families) {
+      // Get baptized member count for this family
+      const { data: members } = await supabase
+        .from("members")
+        .select("baptized")
+        .eq("family_id", family.id);
+      const baptizedCount = members?.filter((m) => m.baptized).length ?? 0;
+      if (baptizedCount === 0) continue;
+
+      const amount = baptizedCount * MONTHLY_AMOUNT;
+
+      // Generate for all months from April 2026 to current month
+      let y = startYear;
+      let m = startMonth;
+      while (y < currentYear || (y === currentYear && m <= currentMonth)) {
+        const { data: existing } = await supabase
+          .from("subscriptions")
+          .select("id")
+          .eq("family_id", family.id)
+          .eq("month", m)
+          .eq("year", y)
+          .maybeSingle();
+
+        if (!existing) {
+          await supabase.from("subscriptions").insert({
+            family_id: family.id,
+            month: m,
+            year: y,
+            amount,
+            paid_status: "unpaid",
+          });
+          generated++;
+        }
+
+        m++;
+        if (m > 12) { m = 1; y++; }
       }
     }
-    toast({ title: "Subscriptions generated for current month" });
+    toast({ title: `Generated ${generated} subscription records from Apr 2026` });
     fetchSubscriptions();
   };
 
