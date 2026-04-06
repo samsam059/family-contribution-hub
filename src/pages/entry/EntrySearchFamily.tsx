@@ -169,7 +169,7 @@ export default function EntrySearchFamily() {
               </div>
             </div>
 
-            <p className="text-xs text-muted-foreground text-center">Subscription: ₹10/month per baptized member</p>
+            <p className="text-xs text-muted-foreground text-center">Subscription: ₹10/month per baptized member (from Apr 2026)</p>
 
             {/* Entry Button */}
             {family.pendingMonths > 0 && !showEntry && !verified && (
